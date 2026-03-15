@@ -1426,18 +1426,118 @@ window.simulateAIReviewBeforePublish = function () {
 }
 
 window.broadcastDealNotification = function () {
-    const selectedCategory = document.getElementById('deal-category-select')?.value || "عام";
-    
+    const selectedCategory = document.getElementById('deal-category-select')?.value;
+    const dealTitle = document.querySelector('input[placeholder*="مثال: توريد شاشات"]')?.value || "صفقة جديدة";
+
+    if (!selectedCategory) {
+        alert("الرجاء اختيار مجال النشاط أولاً.");
+        return;
+    }
+
+    if (!window.twilioConfig || window.twilioConfig.authToken === "YOUR_AUTH_TOKEN_HERE") {
+        alert("تنبيه: لم يتم ضبط بيانات Twilio بشكل كامل (AuthToken مفقود في js/twilio-config.js). سيتم تنفيذ محاكاة فقط.");
+        // Fallback to simulation
+        runBroadcastSimulation(selectedCategory);
+        return;
+    }
+
     simulateAILoading([
         "جاري إدراج الصفقة في قاعدة البيانات...",
         `تم تحديد التصنيف المستهدف: ${selectedCategory}`,
-        "البحث عن الموردين الموثقين في هذا المجال...",
-        "توليد رسائل SMS مخصصة لكل مورد...",
-        "تم إرسال (14) رسالة SMS للمتخصصين بنجاح! ✅"
+        "البحث في Firestore عن الشركات المطابقة...",
     ], () => {
-        alert(`تم نشر الصفقة بنجاح! قام النظام بإرسال تنبيهات SMS فورية لجميع الموردين المسجلين في تصنيف "${selectedCategory}".`);
+        // Real Firestore Query
+        window.db.collection("companies").where("field", "==", selectedCategory).get()
+            .then(async (querySnapshot) => {
+                const count = querySnapshot.size;
+                if (count === 0) {
+                    alert(`لم يتم العثور على أي شركات مسجلة في تصنيف "${selectedCategory}". تم نشر الصفقة بدون إشعارات.`);
+                    loadMyDeals();
+                    return;
+                }
+
+                console.log(`Found ${count} companies for SMS broadcast.`);
+                
+                // Final loading steps for real sending
+                simulateAILoading([
+                    `تم العثور على (${count}) شركة متخصصة.`,
+                    "توليد رسائل SMS مخصصة عبر Twilio...",
+                    "جاري البث الموجه الآن..."
+                ], async () => {
+                    let successCount = 0;
+                    const msgBody = `تنبيه من منصة الصفقات: تم نشر صفقة جديدة تهمك بعنوان (${dealTitle}) في مجال (${selectedCategory}). سجل دخولك الآن للمزايدة!`;
+
+                    // Simple sequential send for reliability (can be parallelized with Promise.all if count is high)
+                    for (const doc of querySnapshot.docs) {
+                        const company = doc.data();
+                        const phone = company.representativePhone;
+                        if (phone) {
+                            const sent = await window.sendSMS(phone, msgBody);
+                            if (sent) successCount++;
+                        }
+                    }
+
+                    alert(`تم نشر الصفقة بنجاح! 🎉\nتم إرسال (${successCount}) رسالة SMS حقيقية للموردين عبر Twilio من أصل (${count}) شركة.`);
+                    loadMyDeals();
+                });
+            })
+            .catch(error => {
+                console.error("Firestore Error during broadcast:", error);
+                alert("حدث خطأ أثناء جلب بيانات الشركات من Firestore.");
+            });
+    });
+};
+
+// Internal simulation fallback
+function runBroadcastSimulation(category) {
+    simulateAILoading([
+        "جاري إدراج الصفقة (محاكاة)...",
+        `التصنيف: ${category}`,
+        "محاكاة البحث عن موردين...",
+        "تم إرسال (14) رسالة SMS وهمية بنجاح! ✅"
+    ], () => {
+        alert(`تم نشر الصفقة! (وضع المحاكاة نشط - يرجى ضبط Twilio لإرسال رسائل حقيقية).`);
         loadMyDeals();
     });
+}
+
+// ==========================================
+// Twilio SMS Engine
+// ==========================================
+window.sendSMS = async function (toNumber, messageBody) {
+    const { accountSid, authToken, fromNumber } = window.twilioConfig;
+    
+    // Twilio API URL
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+    // Format Data
+    const formData = new URLSearchParams();
+    formData.append('To', toNumber);
+    formData.append('From', fromNumber);
+    formData.append('Body', messageBody);
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Basic ' + btoa(accountSid + ':' + authToken),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            console.log("SMS Sent Successfully:", result.sid);
+            return true;
+        } else {
+            console.error("Twilio Error:", result.message);
+            return false;
+        }
+    } catch (error) {
+        console.error("Fetch Error for Twilio:", error);
+        return false;
+    }
 };
 
 window.loadManageBids = function () {
