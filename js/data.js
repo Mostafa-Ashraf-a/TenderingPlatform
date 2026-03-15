@@ -13,6 +13,14 @@ const mockDB = {
         balance: 500000
     },
 
+    categories: [
+        { id: "cat_001", name: "تقنية المعلومات" },
+        { id: "cat_002", name: "معدات بناء" },
+        { id: "cat_003", name: "برمجيات" },
+        { id: "cat_004", name: "توريدات مكتبية" },
+        { id: "cat_005", name: "خدمات شحن" }
+    ],
+
     stats: {
         publisher: {
             activeTenders: 3,

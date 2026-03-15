@@ -21,6 +21,7 @@ const sidebarConfig = {
         { id: "dashboard", label: "الإحصائيات العامة", icon: "fa-solid fa-chart-bar", action: "loadAdminDashboard" },
         { id: "users", label: "مستقطبات AI والتوثيق", icon: "fa-solid fa-users", action: "loadUsers" },
         { id: "companies", label: "إدارة الشركات", icon: "fa-solid fa-building", action: "loadCompanies" },
+        { id: "categories", label: "إدارة التصنيفات", icon: "fa-solid fa-tags", action: "loadCategories" },
         { id: "disputes", label: "إدارة النزاعات", icon: "fa-solid fa-gavel", action: "loadDisputes" },
         { id: "settings", label: "إعدادات المنصة", icon: "fa-solid fa-cogs", action: "loadSettings" }
     ]

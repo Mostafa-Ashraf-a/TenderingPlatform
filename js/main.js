@@ -1016,6 +1016,46 @@ window.loadUsers = function () {
     `);
 };
 
+// ==========================================
+// Categories Management
+// ==========================================
+window.loadCategories = function () {
+    const categoriesHTML = mockDB.categories.map(cat => `
+        <div class="glass-panel" style="padding: 1.25rem 1.5rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid var(--primary-light);">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(79, 70, 229, 0.05); display: flex; justify-content: center; align-items: center; color: var(--primary-color);">
+                    <i class="fa-solid fa-tag"></i>
+                </div>
+                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">${cat.name}</h4>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="icon-btn" style="color: var(--text-muted);" onclick="alert('تعديل التصنيف قيد التطوير')"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="icon-btn" style="color: var(--danger);" onclick="alert('حذف التصنيف قيد التطوير')"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+        </div>
+    `).join('');
+
+    injectView(`
+        <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h2 class="text-gradient">إدارة تصنيفات المنصة</h2>
+                <p style="color: var(--text-secondary);">تحديد مجالات التخصص لربط الصفقات بالموردين وتفعيل الإشعارات الذكية</p>
+            </div>
+            <button class="btn btn-primary" onclick="alert('إضافة تصنيف جديد قيد التطوير')">
+                <i class="fa-solid fa-plus-circle"></i> إضافة تصنيف جديد
+            </button>
+        </div>
+
+        <div style="max-width: 800px;">
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed var(--success); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; color: var(--success);">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span style="font-size: 0.9rem;">سيصل إشعار SMS تلقائي لأي شركة مسجلة تحت التصنيف المختار عند نشر صفقة جديدة تتبعه.</span>
+            </div>
+            ${categoriesHTML}
+        </div>
+    `);
+};
+
 window.openVerifyUserModal = function (userId) {
     const user = mockDB.adminUsersList.find(u => u.id === userId);
     if (!user) return;
@@ -1204,12 +1244,9 @@ window.loadNewDeal = function () {
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">مجال النشاط</label>
-                        <select style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-glass); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body);">
-                            <option>تقنية المعلومات والبرمجيات</option>
-                            <option>المقاولات والبناء</option>
-                            <option>التوريدات الطبية</option>
-                            <option>التسويق والدعاية</option>
-                            <option>أخرى...</option>
+                        <select id="deal-category-select" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-glass); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body);">
+                            <option value="" disabled selected>اختر مجال النشاط...</option>
+                            ${mockDB.categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}
                         </select>
                     </div>
                 </div>
@@ -1379,7 +1416,7 @@ window.simulateAIReviewBeforePublish = function () {
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn btn-primary" onclick="alert('تم تدريب המوديل بنجاح ونشر الصفقة! جاري دعوة الموردين.')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
+                    <button class="btn btn-primary" onclick="window.broadcastDealNotification()"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
                     <button class="btn" style="border: 1px solid var(--border-glass);" onclick="loadMyDeals()">حفظ كمسودة</button>
                 </div>
             </div>
@@ -1387,6 +1424,21 @@ window.simulateAIReviewBeforePublish = function () {
         injectView(html);
     });
 }
+
+window.broadcastDealNotification = function () {
+    const selectedCategory = document.getElementById('deal-category-select')?.value || "عام";
+    
+    simulateAILoading([
+        "جاري إدراج الصفقة في قاعدة البيانات...",
+        `تم تحديد التصنيف المستهدف: ${selectedCategory}`,
+        "البحث عن الموردين الموثقين في هذا المجال...",
+        "توليد رسائل SMS مخصصة لكل مورد...",
+        "تم إرسال (14) رسالة SMS للمتخصصين بنجاح! ✅"
+    ], () => {
+        alert(`تم نشر الصفقة بنجاح! قام النظام بإرسال تنبيهات SMS فورية لجميع الموردين المسجلين في تصنيف "${selectedCategory}".`);
+        loadMyDeals();
+    });
+};
 
 window.loadManageBids = function () {
     // محاكاة مجموعة من العروض لصفقة ما
@@ -1925,7 +1977,10 @@ window.openAddCompanyModal = function () {
                     </div>
                     <div style="margin-bottom: 1.2rem;">
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">مجال التخصص</label>
-                        <input type="text" id="co-field" required placeholder="مثال: تكنولوجيا المعلومات، بناء، توريد..." style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-glass); background: var(--bg-surface); color: var(--text-primary);">
+                        <select id="co-field" required style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-glass); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body);">
+                             <option value="" disabled selected>اختر مجال التخصص...</option>
+                             ${mockDB.categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}
+                        </select>
                     </div>
                     <div style="margin-bottom: 1.2rem;">
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">الدولة</label>
