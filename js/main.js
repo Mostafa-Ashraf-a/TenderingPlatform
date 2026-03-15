@@ -1366,8 +1366,12 @@ window.simulateAIFormAssist = function () {
 window.simulateAIReviewBeforePublish = function () {
     const titleInput = document.querySelector('input[placeholder*="مثال: توريد شاشات"]');
     const descInput = document.getElementById('deal-description');
+    const categorySelect = document.getElementById('deal-category-select');
     const filesInput = document.getElementById('new-deal-files');
     const filesError = document.getElementById('new-deal-files-error');
+
+    const selectedCategory = categorySelect?.value;
+    const dealTitle = titleInput?.value;
 
     let isValid = true;
 
@@ -1426,7 +1430,7 @@ window.simulateAIReviewBeforePublish = function () {
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn btn-primary" onclick="window.broadcastDealNotification()"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
+                    <button class="btn btn-primary" onclick="window.broadcastDealNotification('${selectedCategory}', '${dealTitle?.replace(/'/g, "\\'")}')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
                     <button class="btn" style="border: 1px solid var(--border-glass);" onclick="loadMyDeals()">حفظ كمسودة</button>
                 </div>
             </div>
@@ -1435,9 +1439,9 @@ window.simulateAIReviewBeforePublish = function () {
     });
 }
 
-window.broadcastDealNotification = function () {
-    const selectedCategory = document.getElementById('deal-category-select')?.value;
-    const dealTitle = document.querySelector('input[placeholder*="مثال: توريد شاشات"]')?.value || "صفقة جديدة";
+window.broadcastDealNotification = function (category, title) {
+    const selectedCategory = category || document.getElementById('deal-category-select')?.value;
+    const dealTitle = title || document.querySelector('input[placeholder*="مثال: توريد شاشات"]')?.value || "صفقة جديدة";
 
     if (!selectedCategory) {
         alert("الرجاء اختيار مجال النشاط أولاً.");
