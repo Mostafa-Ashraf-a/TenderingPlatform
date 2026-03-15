@@ -6,15 +6,19 @@
 
 const twilioConfig = {
     accountSid: "AC0c7c61d5afeaf771b47f0f293b396ce6",
-    
+
     // [IMPORTANT] REPLACE WITH YOUR TWILIO AUTH TOKEN
     // WARNING: Storing secrets in frontend JS is insecure. 
     // Recommended: Use a backend or Firebase Cloud Function.
-    authToken: "YOUR_AUTH_TOKEN_HERE", 
-    
+    authToken: "5ead5162aea8f248188af0220afb62d8",
+
     // [IMPORTANT] REPLACE WITH YOUR TWILIO PHONE NUMBER (Trial or Paid)
-    // Example: "+1234567890"
-    fromNumber: "YOUR_TWILIO_PHONE_NUMBER",
+    // example: "+13502461011"
+    fromNumber: "+13502461011",
+
+    // SMS Message Template
+    // Supports variables: {title}, {category}
+    smsTemplate: "تنبيه من منصة الصفقات: تم نشر صفقة جديدة تهمك بعنوان ({title}) في مجال ({category}). سجل دخولك الآن للمزايدة!",
 };
 
 // Export to global scope

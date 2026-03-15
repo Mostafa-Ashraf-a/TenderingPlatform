@@ -1465,7 +1465,10 @@ window.broadcastDealNotification = function () {
                     "جاري البث الموجه الآن..."
                 ], async () => {
                     let successCount = 0;
-                    const msgBody = `تنبيه من منصة الصفقات: تم نشر صفقة جديدة تهمك بعنوان (${dealTitle}) في مجال (${selectedCategory}). سجل دخولك الآن للمزايدة!`;
+                    
+                    // Generate message from template
+                    let msgBody = window.twilioConfig.smsTemplate || "تنبيه: تم نشر صفقة جديدة تهمك!";
+                    msgBody = msgBody.replace("{title}", dealTitle).replace("{category}", selectedCategory);
 
                     // Simple sequential send for reliability (can be parallelized with Promise.all if count is high)
                     for (const doc of querySnapshot.docs) {
