@@ -357,8 +357,29 @@ window.applyDealsFilter = function () {
 
 window.loadDealDetails = function (dealId) {
     const d = mockDB.deals.find(x => x.id === dealId);
-    if (!d) return;
+    if (!d) {
+        // Attempt to fetch from Firestore for real deals
+        window.db.collection("deals").doc(dealId).get()
+            .then(doc => {
+                if (doc.exists) {
+                    const realData = doc.data();
+                    window.renderDealDetailsView(realData, dealId);
+                } else {
+                    console.log("Deal not found in Mock or Firestore:", dealId);
+                    loadExploreDeals();
+                }
+            })
+            .catch(error => {
+                console.error("Error loading deal from Firestore:", error);
+                loadExploreDeals();
+            });
+        return;
+    }
 
+    window.renderDealDetailsView(d, dealId);
+}
+
+window.renderDealDetailsView = function (d, id) {
     const html = `
         <div style="margin-bottom: 1.5rem;">
             <button class="btn" style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-secondary); padding: 0.4rem 0.8rem;" onclick="loadExploreDeals()"><i class="fa-solid fa-arrow-right"></i> العودة للقائمة</button>
@@ -416,7 +437,8 @@ window.loadDealDetails = function (dealId) {
         d.bidsCount > 0 ?
             Array.from({ length: Math.min(d.bidsCount, 3) }).map((_, i) => {
                 const randomDiscount = 1 - (Math.random() * 0.15); // Randomly 1% to 15% cheaper
-                const estBudgetVal = parseInt(d.budget.replace(/[^0-9]/g, '')) || 100000;
+                const budgetString = d.budget || "100000";
+                const estBudgetVal = parseInt(budgetString.replace(/[^0-9]/g, '')) || 100000;
                 const bidVal = Math.round((estBudgetVal * randomDiscount) / 1000) * 1000;
                 return `
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-base); border: 1px solid var(--border-glass); border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: var(--transition-fast);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
@@ -462,12 +484,12 @@ window.loadDealDetails = function (dealId) {
                         </li>
                     </ul>
 
-                    <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="loadSubmitBidForm('${d.id}')">التقديم على الصفقة (يستلزم دفع التأمين)</button>
+                    <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;" onclick="loadSubmitBidForm('${id}')">التقديم على الصفقة (يستلزم دفع التأمين)</button>
                 </div>
                 <div class="glass-panel" style="padding: 1.5rem; background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2);">
                     <h4 style="color: var(--accent-color); margin-bottom: 0.5rem;"><i class="fa-solid fa-lightbulb"></i> ملخص الذكاء الاصطناعي</h4>
                     <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6;">
-                        هذه الصفقة تتطابق بنسبة <strong>${d.aiScore}%</strong> مع سابقة أعمالك.
+                        هذه الصفقة تتطابق بنسبة <strong>${d.aiScore || 90}%</strong> مع سابقة أعمالك.
                         ينصح النظام بتقديم عرض لأن أوقات التوريد المطلوبة تتناسب مع قدراتك المسجلة.
                     </p>
                 </div>
@@ -1430,7 +1452,7 @@ window.simulateAIReviewBeforePublish = function () {
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn btn-primary" onclick="window.broadcastDealNotification('${selectedCategory}', '${dealTitle?.replace(/'/g, "\\'")}')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
+                    <button class="btn btn-primary" onclick="window.broadcastDealNotification('${selectedCategory}', '${dealTitle?.replace(/'/g, "\\'")}', '${descInput?.value?.replace(/\n/g, "\\n").replace(/'/g, "\\'")}')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
                     <button class="btn" style="border: 1px solid var(--border-glass);" onclick="loadMyDeals()">حفظ كمسودة</button>
                 </div>
             </div>
@@ -1439,9 +1461,10 @@ window.simulateAIReviewBeforePublish = function () {
     });
 }
 
-window.broadcastDealNotification = function (category, title) {
+window.broadcastDealNotification = function (category, title, description) {
     const selectedCategory = category || document.getElementById('deal-category-select')?.value;
     const dealTitle = title || document.querySelector('input[placeholder*="مثال: توريد شاشات"]')?.value || "صفقة جديدة";
+    const dealDesc = description || document.getElementById('deal-description')?.value || "";
 
     if (!selectedCategory) {
         alert("الرجاء اختيار مجال النشاط أولاً.");
