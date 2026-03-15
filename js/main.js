@@ -30,6 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Dashboard Load Delay (for effect)
     setTimeout(() => {
+        // Deep Linking: Check for dealId in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const dealId = urlParams.get('dealId');
+        
+        if (dealId) {
+            console.log("Deep link detected for deal:", dealId);
+            window.loadDealDetails(dealId);
+            return;
+        }
+
         const currentRole = getCurrentRoleConfig(); // from data.js
         if (currentRole === 'publisher') loadPublisherDashboard();
         else if (currentRole === 'bidder') loadBidderDashboard();
@@ -1468,7 +1478,10 @@ window.broadcastDealNotification = function () {
                     
                     // Generate message from template
                     let msgBody = window.twilioConfig.smsTemplate || "تنبيه: تم نشر صفقة جديدة تهمك!";
-                    const dealLink = window.location.origin + window.location.pathname; // Simplified link for the platform
+                    
+                    // Create a unique link for each deal (using Firestore ID or random ID for demo)
+                    const dealId = querySnapshot.docs[0]?.id || "dl_001"; // Using first found or dl_001 for demo
+                    const dealLink = window.location.origin + window.location.pathname + "?dealId=" + dealId;
                     
                     msgBody = msgBody
                         .replace("{title}", dealTitle)
