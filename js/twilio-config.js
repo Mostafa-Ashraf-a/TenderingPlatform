@@ -17,8 +17,8 @@ const twilioConfig = {
     fromNumber: "+13502461011",
 
     // SMS Message Template
-    // Supports variables: {title}, {category}
-    smsTemplate: "تنبيه من منصة الصفقات: تم نشر صفقة جديدة تهمك بعنوان ({title}) في مجال ({category}). سجل دخولك الآن للمزايدة!",
+    // Supports variables: {title}, {category}, {link}
+    smsTemplate: "تنبيه من منصة الصفقات: تم نشر صفقة جديدة بعنوان ({title}) في مجال ({category}). يمكنك مشاهدة التفاصيل والمزايدة عبر هذا الرابط: {link}",
 };
 
 // Export to global scope

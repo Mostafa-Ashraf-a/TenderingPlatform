@@ -1468,7 +1468,12 @@ window.broadcastDealNotification = function () {
                     
                     // Generate message from template
                     let msgBody = window.twilioConfig.smsTemplate || "تنبيه: تم نشر صفقة جديدة تهمك!";
-                    msgBody = msgBody.replace("{title}", dealTitle).replace("{category}", selectedCategory);
+                    const dealLink = window.location.origin + window.location.pathname; // Simplified link for the platform
+                    
+                    msgBody = msgBody
+                        .replace("{title}", dealTitle)
+                        .replace("{category}", selectedCategory)
+                        .replace("{link}", dealLink);
 
                     // Simple sequential send for reliability (can be parallelized with Promise.all if count is high)
                     for (const doc of querySnapshot.docs) {
