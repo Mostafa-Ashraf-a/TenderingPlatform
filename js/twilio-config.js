@@ -10,11 +10,10 @@ const twilioConfig = {
     // [IMPORTANT] REPLACE WITH YOUR TWILIO AUTH TOKEN
     // WARNING: Storing secrets in frontend JS is insecure. 
     // Recommended: Use a backend or Firebase Cloud Function.
-    authToken: "PASTE_YOUR_AUTH_TOKEN_HERE",
+    authToken: "5ead5162aea8f248188af0220afb62d8",
 
     // [IMPORTANT] REPLACE WITH YOUR TWILIO PHONE NUMBER (Trial or Paid)
-    // example: "+13502461011"
-    fromNumber: "PASTE_YOUR_TWILIO_NUMBER_HERE",
+    fromNumber: "+13502461011",
 
     // SMS Message Template
     // Supports variables: {title}, {category}, {link}
