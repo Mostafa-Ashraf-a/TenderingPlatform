@@ -1471,84 +1471,79 @@ window.broadcastDealNotification = function (category, title, description) {
         return;
     }
 
+    // Start Save immediately (don't wait for UI simulation to finish)
+    const newDealData = {
+        title: dealTitle,
+        description: dealDesc,
+        category: selectedCategory,
+        type: "مناقصة (شراء / توريد)",
+        createdAt: new Date().toISOString(),
+        endDate: "2026-04-30", 
+        budget: "جاري التفاوض (بناءً على العروض)",
+        bidsCount: 0,
+        aiScore: 95
+    };
+
+    console.log("Starting Firebase Save for deal:", dealTitle);
+
+    // Show initial UI
     simulateAILoading([
-        "جاري إدراج الصفقة في قاعدة البيانات...",
-        `تم تحديد التصنيف المستهدف: ${selectedCategory}`,
-        "البحث في Firestore عن الشركات المطابقة...",
-    ], () => {
-        // Step 1: Save Deal to Firestore (Always)
-        const newDealData = {
-            title: dealTitle,
-            description: dealDesc,
-            category: selectedCategory,
-            type: "مناقصة (شراء / توريد)",
-            createdAt: new Date().toISOString(),
-            endDate: "2026-04-30", 
-            budget: "جاري التفاوض",
-            bidsCount: 0,
-            aiScore: 95
-        };
+        "جاري إدراج الصفقة في قاعدة البيانات السحابية...",
+        `المجال المستهدف: ${selectedCategory}`,
+        "فحص مطابقة الموردين..."
+    ], async () => {
+        try {
+            // Firestore Save
+            const docRef = await window.db.collection("deals").add(newDealData);
+            const dealId = docRef.id;
+            console.log("Success! Deal saved with ID:", dealId);
 
-        window.db.collection("deals").add(newDealData)
-            .then((docRef) => {
-                const dealId = docRef.id;
-                console.log("Real Deal saved with ID:", dealId);
+            // Check for Twilio Config
+            const isTwilioLive = window.twilioConfig && window.twilioConfig.authToken && window.twilioConfig.authToken !== "YOUR_AUTH_TOKEN_HERE";
 
-                // Step 2: Check for Twilio Config
-                if (!window.twilioConfig || window.twilioConfig.authToken === "YOUR_AUTH_TOKEN_HERE" || !window.twilioConfig.authToken) {
-                    console.warn("Twilio not configured. Running simulation for deal:", dealId);
-                    runBroadcastSimulation(selectedCategory, dealId);
-                    return;
+            if (!isTwilioLive) {
+                console.warn("Twilio not configured for real messaging.");
+                runBroadcastSimulation(selectedCategory, dealId);
+                return;
+            }
+
+            // Real Broadcast
+            const querySnapshot = await window.db.collection("companies").where("field", "==", selectedCategory).get();
+            const count = querySnapshot.size;
+
+            if (count === 0) {
+                alert(`تم حفظ الصفقة بنجاح تحت رقم (${dealId}).\nتنبيه: لم يتم العثور على موردين مسجلين في مجال "${selectedCategory}" لإرسال إشعارات.`);
+                loadMyDeals();
+                return;
+            }
+
+            simulateAILoading([
+                `تم العثور على (${count}) شركة مطابقة.`,
+                "توليد رسائل WhatsApp حقيقية...",
+                "بدء البث الموجه الآن..."
+            ], async () => {
+                let successCount = 0;
+                const dealLink = window.location.origin + window.location.pathname + "?dealId=" + dealId;
+                const variables = { "1": dealTitle, "2": dealLink };
+                const msgTemplate = window.twilioConfig.smsTemplate || "صفقة جديدة";
+
+                for (const doc of querySnapshot.docs) {
+                    const company = doc.data();
+                    const phone = company.representativePhone;
+                    if (phone) {
+                        const sent = await window.sendTwilioMessage(phone, msgTemplate, variables);
+                        if (sent) successCount++;
+                    }
                 }
 
-                // Step 3: Query companies for real broadcast
-                window.db.collection("companies").where("field", "==", selectedCategory).get()
-                    .then(async (querySnapshot) => {
-                        const count = querySnapshot.size;
-                        if (count === 0) {
-                            alert(`تم نشر وحفظ الصفقة بنجاح تحت رقم (${dealId}).\nولكن لم يتم العثور على أي شركات في تصنيف "${selectedCategory}" لإرسال إشعارات.`);
-                            loadMyDeals();
-                            return;
-                        }
-
-                        simulateAILoading([
-                            `تم العثور على (${count}) شركة متخصصة.`,
-                            "توليد رسائل WhatsApp مخصصة عبر Twilio...",
-                            "جاري البث الموجه الحقيقي الآن..."
-                        ], async () => {
-                            let successCount = 0;
-                            const dealLink = window.location.origin + window.location.pathname + "?dealId=" + dealId;
-                            
-                            const variables = {
-                                "1": dealTitle,
-                                "2": dealLink
-                            };
-                            
-                            const msgTemplate = window.twilioConfig.smsTemplate || "تنبيه بصفقة جديدة";
-
-                            for (const doc of querySnapshot.docs) {
-                                const company = doc.data();
-                                const phone = company.representativePhone;
-                                if (phone) {
-                                    const sent = await window.sendTwilioMessage(phone, msgTemplate, variables);
-                                    if (sent) successCount++;
-                                }
-                            }
-
-                            alert(`تم الحفظ والنشر بنجاح! 🎉\nالمعرف: ${dealId}\nتم إرسال (${successCount}) رسالة WhatsApp للموردين برابط الصفقة الجديد.`);
-                            loadMyDeals();
-                        });
-                    })
-                    .catch(err => {
-                        console.error("Firestore Query Error:", err);
-                        alert("تم الحفظ ولكن تعذر البحث عن موردين.");
-                        loadMyDeals();
-                    });
-            })
-            .catch(error => {
-                console.error("Firestore Deal Save Error:", error);
-                alert("حدث خطأ تقني: تعذر حفظ الصفقة في قاعدة البيانات. برجاء التحقق من صلاحيات الوصول.");
+                alert(`ممتاز! 🎉\nتم حفظ الصفقة (ID: ${dealId})\nوإرسال (${successCount}) إشعار WhatsApp حقيقي.`);
+                loadMyDeals();
             });
+
+        } catch (error) {
+            console.error("CRITICAL ERROR DURING PUBLISH:", error);
+            alert(`فشل الحفظ في Firestore: ${error.message}\nيرجى التأكد من إعدادات Firebase وقواعد الأمان (Security Rules).`);
+        }
     });
 };
 
