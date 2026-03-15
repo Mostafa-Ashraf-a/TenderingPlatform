@@ -10,13 +10,16 @@ const twilioConfig = {
     // [IMPORTANT] REPLACE WITH YOUR TWILIO AUTH TOKEN
     // WARNING: Storing secrets in frontend JS is insecure. 
     // Recommended: Use a backend or Firebase Cloud Function.
-    authToken: "5ead5162aea8f248188af0220afb62d8",
+    authToken: "5ead5162aea8f248188af0220afb62d8", 
+    
+    // WhatsApp Configuration
+    whatsappFrom: "whatsapp:+14155238886", // From your curl
+    contentSid: "HXb5b62575e6e4ff6129ad7c8efe1f983e", // Template ID from your curl
 
-    // [IMPORTANT] REPLACE WITH YOUR TWILIO PHONE NUMBER (Trial or Paid)
+    // SMS Configuration (Fallback)
     fromNumber: "+13502461011",
 
-    // SMS Message Template
-    // Supports variables: {title}, {category}, {link}
+    // SMS/WA Message Template (Normal body for cases without Content API)
     smsTemplate: "تنبيه من منصة الصفقات: تم نشر صفقة جديدة بعنوان ({title}) في مجال ({category}). يمكنك مشاهدة التفاصيل والمزايدة عبر هذا الرابط: {link}",
 };
 

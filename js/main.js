@@ -1492,17 +1492,23 @@ window.broadcastDealNotification = function (category, title) {
                         .replace("{category}", selectedCategory)
                         .replace("{link}", dealLink);
 
-                    // Simple sequential send for reliability (can be parallelized with Promise.all if count is high)
+                    // Simple sequential send for reliability
                     for (const doc of querySnapshot.docs) {
                         const company = doc.data();
                         const phone = company.representativePhone;
                         if (phone) {
-                            const sent = await window.sendSMS(phone, msgBody);
+                            // Map Variables for WhatsApp Template
+                            const variables = {
+                                "1": dealTitle,
+                                "2": dealLink
+                            };
+                            
+                            const sent = await window.sendTwilioMessage(phone, msgBody, variables);
                             if (sent) successCount++;
                         }
                     }
 
-                    alert(`تم نشر الصفقة بنجاح! 🎉\nتم إرسال (${successCount}) رسالة SMS حقيقية للموردين عبر Twilio من أصل (${count}) شركة.`);
+                    alert(`تم نشر الصفقة بنجاح! 🎉\nتم إرسال (${successCount}) رسالة WhatsApp حقيقية للموردين من أصل (${count}) شركة.`);
                     loadMyDeals();
                 });
             })
@@ -1527,19 +1533,37 @@ function runBroadcastSimulation(category) {
 }
 
 // ==========================================
-// Twilio SMS Engine
+// Twilio Messaging Engine (SMS & WhatsApp Content API)
 // ==========================================
-window.sendSMS = async function (toNumber, messageBody) {
-    const { accountSid, authToken, fromNumber } = window.twilioConfig;
+window.sendTwilioMessage = async function (toNumber, messageBody, contentVariables = null) {
+    const { accountSid, authToken, whatsappFrom, contentSid } = window.twilioConfig;
     
     // Twilio API URL
     const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
 
+    // Ensure phone number has + sign and no spaces
+    let formattedTo = toNumber.trim().replace(/\s/g, '');
+    if (!formattedTo.startsWith('+')) {
+        formattedTo = '+2' + formattedTo; // Default to Egypt if no country code
+    }
+
     // Format Data
     const formData = new URLSearchParams();
-    formData.append('To', toNumber);
-    formData.append('From', fromNumber);
-    formData.append('Body', messageBody);
+    
+    // Check if we use WhatsApp Content API or normal SMS
+    if (whatsappFrom && contentSid) {
+        formData.append('To', `whatsapp:${formattedTo}`);
+        formData.append('From', whatsappFrom);
+        formData.append('ContentSid', contentSid);
+        if (contentVariables) {
+            formData.append('ContentVariables', JSON.stringify(contentVariables));
+        }
+    } else {
+        // Fallback to normal SMS
+        formData.append('To', formattedTo);
+        formData.append('From', window.twilioConfig.fromNumber);
+        formData.append('Body', messageBody);
+    }
 
     try {
         const response = await fetch(url, {
@@ -1553,7 +1577,7 @@ window.sendSMS = async function (toNumber, messageBody) {
 
         const result = await response.json();
         if (response.ok) {
-            console.log("SMS Sent Successfully:", result.sid);
+            console.log("Twilio Message Sent Successfully:", result.sid);
             return true;
         } else {
             console.error("Twilio Error:", result.message);
@@ -1564,6 +1588,9 @@ window.sendSMS = async function (toNumber, messageBody) {
         return false;
     }
 };
+
+// Legacy support if needed
+window.sendSMS = window.sendTwilioMessage;
 
 window.loadManageBids = function () {
     // محاكاة مجموعة من العروض لصفقة ما
