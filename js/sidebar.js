@@ -5,12 +5,14 @@
 const sidebarConfig = {
     publisher: [
         { id: "dashboard", label: "لوحة التحكم الرئيسية", icon: "fa-solid fa-chart-line", action: "loadPublisherDashboard" },
-        { id: "my-deals", label: "إدارة الصفقات", icon: "fa-solid fa-briefcase", action: "loadMyDeals" },
+        { id: "my-deals", label: "إدارة الصفقات النشطة", icon: "fa-solid fa-briefcase", action: "loadMyDeals" },
+        { id: "archive", label: "أرشيف الصفقات المغلقة", icon: "fa-solid fa-box-archive", action: "loadDealsArchive" },
         { id: "new-deal", label: "إنشاء صفقة جديدة", icon: "fa-solid fa-plus-circle", action: "loadNewDeal" },
         { id: "manage-bids", label: "إدارة ومقارنة العروض", icon: "fa-solid fa-scale-balanced", action: "loadManageBids" },
         { id: "companies", label: "إدارة الشركات", icon: "fa-solid fa-building", action: "loadCompanies" },
         { id: "reports", label: "التقارير المتقدمة", icon: "fa-solid fa-file-contract", action: "loadReports" }
     ],
+
     bidder: [
         { id: "dashboard", label: "لوحة تحكم المورد", icon: "fa-solid fa-chart-pie", action: "loadBidderDashboard" },
         { id: "explore", label: "استكشاف الصفقات", icon: "fa-solid fa-magnifying-glass", action: "loadExploreDeals" },
