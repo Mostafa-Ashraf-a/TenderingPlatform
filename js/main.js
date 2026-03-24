@@ -200,7 +200,7 @@ window.showRegisterView = function () {
     loginScreen.innerHTML = `
         <div class="login-card glass-panel" style="max-width: 650px; text-align: right; animation: fadeIn 0.8s ease-out; padding: 3rem;">
             <div class="login-header" style="text-align: center; margin-bottom: 2rem;">
-                <i class="fa-solid fa-building-circle-arrow-right"></i>
+                <i class="fa-solid fa-building-circle-check" style="color: var(--primary-color); font-size: 3rem; margin-bottom: 1rem;"></i>
                 <h2 class="text-gradient">تسجيل شركة جديدة وتوثيق</h2>
                 <p>قم بإدخال بيانات منشأتك الرسمية لبدء عملية الفحص والاعتماد الذكي</p>
             </div>
@@ -260,13 +260,16 @@ window.showRegisterView = function () {
                         <i class="fa-solid fa-file-shield"></i> الأوراق الرسمية المرفقة للتوثيق الآلي
                     </h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="upload-field" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px;">
-                            <label style="font-size: 0.8rem; color: #94A3B8; display: block; margin-bottom: 0.5rem;">صورة السجل التجاري (ساري)</label>
-                            <input type="file" id="file-cr" required style="font-size: 0.7rem; color: #CBD5E1;">
+                        <div class="upload-field" style="background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 12px; border: 1px dashed var(--border-glass);">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">صورة السجل التجاري (ساري)</label>
+                            <input type="file" id="file-cr" required style="font-size: 0.7rem; color: var(--text-primary); width: 100%;">
                         </div>
-                        <div class="upload-field" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 12px;">
-                            <label style="font-size: 0.8rem; color: #94A3B8; display: block; margin-bottom: 0.5rem;">خطاب تفويض معتمد</label>
-                            <input type="file" id="file-auth" required style="font-size: 0.7rem; color: #CBD5E1;">
+                        <div class="upload-field" style="background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 12px; border: 1px dashed var(--border-glass);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">خطاب تفويض معتمد</label>
+                                <a href="#" onclick="window.downloadMockTemplate('authorization_letter_template.pdf', 'Authorization Letter Template Content')" style="font-size: 0.7rem; color: var(--primary-color); text-decoration: none; font-weight: 600;"><i class="fa-solid fa-download"></i> تحميل النموذج</a>
+                            </div>
+                            <input type="file" id="file-auth" required style="font-size: 0.7rem; color: var(--text-primary); width: 100%;">
                         </div>
                     </div>
                     <p style="font-size: 0.75rem; color: #64748B; margin-top: 1rem;">
@@ -299,6 +302,9 @@ window.handleRegisterSubmit = function (event) {
     const email = document.getElementById('reg-email').value;
     const field = document.getElementById('reg-company-field').value;
 
+    const fileCr = document.getElementById('file-cr').files[0];
+    const fileAuth = document.getElementById('file-auth').files[0];
+
     const registrationData = {
         name: companyName,
         crNumber: crNumber,
@@ -307,7 +313,9 @@ window.handleRegisterSubmit = function (event) {
         representativePhone: repPhone,
         email: email,
         field: field,
-        status: "pending", // Default to pending for AI/Admin review
+        documentCR: fileCr ? fileCr.name : null,
+        documentAuth: fileAuth ? fileAuth.name : null,
+        status: "pending", 
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -738,11 +746,7 @@ function renderExploreDealsView(dealsFromSource) {
                             ${d.description}
                         </p>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
-                        <div>
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">الميزانية التقديرية</span>
-                            <span style="font-weight: bold; color: var(--primary-color);">${d.budget}</span>
-                        </div>
+                    <div style="display: flex; justify-content: flex-end; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
                         <button class="btn" style="background: var(--primary-light); color: white; padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="loadDealDetails('${d.id}')">التفاصيل <i class="fa-solid fa-arrow-left" style="margin-right: 0.5rem; margin-left: 0;"></i></button>
                     </div>
                 </div>
@@ -904,10 +908,10 @@ window.renderDealDetailsView = function (d, id, bids = []) {
             
             <div class="glass-panel" style="padding: 1.8rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-top: 5px solid var(--success); box-shadow: var(--shadow-md);">
                 <span style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 600;">
-                    <i class="fa-solid fa-sack-dollar"></i> الميزانية التقديرية القصوى لهذا الطلب
+                    <i class="fa-solid fa-trophy"></i> عدد الشركات المتنافسة
                 </span>
-                <h2 style="color: var(--success); font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1px;">${d.budget || "150,000 ج.م"}</h2>
-                <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">السعر الاسترشادي شامل كافة الرسوم</span>
+                <h2 style="color: var(--success); font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1px;">${bidsCount}</h2>
+                <span style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">إجمالي العروض المقدمة حتى الآن</span>
             </div>
         </div>
 
@@ -1114,13 +1118,16 @@ window.loadSubmitBidForm = async function (dealId) {
                     </div>
 
                     <div style="margin-bottom: 2rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">المرفقات (العرض الفني المفصل، السجل التجاري) <span style="color: var(--danger);">*</span></label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="color: var(--text-secondary); font-weight: 600;">المرفقات (العرض الفني المفصل، السجل التجاري) <span style="color: var(--danger);">*</span></label>
+                            <a href="#" onclick="window.downloadMockTemplate('bid_proposal_template.pdf', 'Bid Proposal Template Content')" style="font-size: 0.75rem; color: var(--primary-color); text-decoration: none; font-weight: 600;"><i class="fa-solid fa-download"></i> تحميل نموذج العرض</a>
+                        </div>
                         <div style="border: 2px dashed var(--border-glass); border-radius: 8px; padding: 1.5rem; text-align: center; background: rgba(0,0,0,0.02); position: relative; transition: var(--transition-fast);">
                             <input type="file" id="bid-files" required multiple accept=".pdf,.zip,.rar,.doc,.docx" 
                                 style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor: pointer; z-index: 10;" 
-                                onchange="handleFileUploadPreview(this)">
+                                onchange="window.handleFileUploadPreview(this)">
                             
-                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--primary-light); margin-bottom: 0.5rem;"></i>
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem;"></i>
                             <h4 id="file-upload-text" style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 1rem;">اضغط هنا لاختيار الملفات أو اسحبها</h4>
                             <p style="color: var(--text-muted); font-size: 0.8rem;">صيغ مدعومة: PDF, ZIP (الحد الأقصى 20 ميجا)</p>
                             
@@ -1470,10 +1477,7 @@ window.loadAdminDashboard = function () {
         const activeDeals = allDeals.filter(d => d.status === 'نشط');
         const closedDeals = allDeals.filter(d => d.status === 'مغلق');
 
-        const totalVol = allDeals.reduce((sum, d) => {
-            const b = d.budget || "0";
-            return sum + (parseInt(b.replace(/[^0-9]/g, '')) || 0);
-        }, 0);
+        const totalVol = 0; // Budget volume removed per user request
 
         const stats = {
             totalVolume: totalVol.toLocaleString(),
@@ -1548,15 +1552,15 @@ window.renderAdminDashboardView = function (s) {
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
             <div class="stat-card glass-panel" style="border-bottom: 3px solid var(--primary-color);">
                 <div class="stat-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color); padding: 1rem; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;"><i class="fa-solid fa-money-bill-trend-up"></i></div>
-                <div class="stat-value" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary);">${s.totalVolume} <span style="font-size: 0.9rem; color: var(--text-secondary);">ج.م</span></div>
-                <div class="stat-label" style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي حجم الميزانيات</div>
+                <div class="stat-value" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary);">${s.totalActiveDeals}</div>
+                <div class="stat-label" style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي الصفقات الجارية</div>
                 <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--success);"><i class="fa-solid fa-arrow-trend-up"></i> بيانات حقيقية</div>
             </div>
             <div class="stat-card glass-panel" style="border-bottom: 3px solid var(--success);">
                 <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 1rem; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;"><i class="fa-solid fa-briefcase"></i></div>
-                <div class="stat-value" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary);">${s.totalActiveDeals}</div>
-                <div class="stat-label" style="color: var(--text-secondary); font-size: 0.9rem;">إجمالي الصفقات الجارية</div>
-                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">مزادات ومناقصات</div>
+                <div class="stat-value" style="font-size: 1.6rem; font-weight: bold; color: var(--text-primary);">${s.activePublishers}</div>
+                <div class="stat-label" style="color: var(--text-secondary); font-size: 0.9rem;">ناشري الصفقات</div>
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">شركات ومؤسسات</div>
             </div>
             <div class="stat-card glass-panel" style="border-bottom: 3px solid var(--info);">
                 <div class="stat-icon" style="background: rgba(13, 138, 188, 0.1); color: var(--info); padding: 1rem; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;"><i class="fa-solid fa-users"></i></div>
@@ -1800,11 +1804,11 @@ window.openVerifyUserModal = function (userId) {
 
                     <h4 style="font-size: 1rem; color: var(--text-primary); margin-bottom: 1rem;">المرفقات المستلمة للتأهيل:</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <a href="#" class="btn" style="justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
+                        <a href="#" class="btn" onclick="window.downloadMockTemplate('commercial_register.pdf', 'Commercial Register Data')" style="justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
                             <span><i class="fa-solid fa-file-pdf" style="color: var(--danger); margin-left: 0.5rem;"></i> السجل التجاري.pdf</span>
                             <i class="fa-solid fa-download" style="color: var(--text-muted);"></i>
                         </a>
-                        <a href="#" class="btn" style="justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
+                        <a href="#" class="btn" onclick="window.downloadMockTemplate('content_certificate.jpg', 'Local Content Certificate Image Data')" style="justify-content: space-between; background: var(--bg-surface); border: 1px solid var(--border-glass); color: var(--text-primary); font-size: 0.85rem;">
                             <span><i class="fa-solid fa-file-image" style="color: var(--info); margin-left: 0.5rem;"></i> شهادة المحتوى المحلي.jpg</span>
                             <i class="fa-solid fa-download" style="color: var(--text-muted);"></i>
                         </a>
@@ -2034,10 +2038,6 @@ window.loadNewDeal = function () {
                     </div>
                 </div>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">الميزانية التقديرية (ج.م)</label>
-                    <input type="number" id="deal-budget-input" placeholder="مثال: 100000" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-glass); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body);">
-                </div>
 
                 <div style="margin-bottom: 2rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-weight: 600;">المرفقات (صور، كراسة شروط PDF، مواصفات فنية) <span style="color: var(--danger);">*</span></label>
@@ -2122,7 +2122,6 @@ window.simulateAIReviewBeforePublish = function () {
     const selectedCategory = categorySelect?.value;
     const dealTitle = titleInput?.value;
     const endDate = document.getElementById('deal-end-date-input')?.value || "";
-    const budgetVal = document.getElementById('deal-budget-input')?.value || "";
     const insurance = document.getElementById('deal-insurance-input')?.value || "";
 
     let isValid = true;
@@ -2182,7 +2181,7 @@ window.simulateAIReviewBeforePublish = function () {
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn btn-primary" onclick="window.broadcastDealNotification('${selectedCategory}', '${dealTitle?.replace(/'/g, "\\'")}', '${descInput?.value?.replace(/\n/g, "\\'").replace(/'/g, "\\'")}', '${endDate}', '${budgetVal}', '${insurance}')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
+                    <button class="btn btn-primary" onclick="window.broadcastDealNotification('${selectedCategory}', '${dealTitle?.replace(/'/g, "\\'")}', '${descInput?.value?.replace(/\n/g, "\\n").replace(/'/g, "\\'")}', '${endDate}', '${insurance}')"><i class="fa-solid fa-paper-plane"></i> نشر الصفقة وبدء تلقي العروض</button>
                     <button class="btn" style="border: 1px solid var(--border-glass);" onclick="loadMyDeals()">حفظ كمسودة</button>
                 </div>
             </div>
@@ -2228,14 +2227,13 @@ window.sendGmailNotification = function (toEmail, companyName, dealDetails) {
         });
 };
 
-window.broadcastDealNotification = function (category, title, description, overEndDate, overBudget, overInsurance) {
+window.broadcastDealNotification = function (category, title, description, overEndDate, overInsurance) {
     const selectedCategory = category || document.getElementById('deal-category-select')?.value;
     const dealTitle = title || document.getElementById('deal-title-input')?.value || "صفقة جديدة";
     const dealDesc = description || document.getElementById('deal-description')?.value || "";
 
     // Use passed values if available (from Review screen), otherwise try getting from DOM
     const endDate = overEndDate || document.getElementById('deal-end-date-input')?.value || "2026-05-01";
-    const budgetRaw = overBudget || document.getElementById('deal-budget-input')?.value || "100000";
     const insurance = overInsurance || document.getElementById('deal-insurance-input')?.value || "5000";
 
     const formatMoney = (val) => {
@@ -2244,7 +2242,6 @@ window.broadcastDealNotification = function (category, title, description, overE
         return isNaN(num) ? "0 ج.م" : (num.toLocaleString() + " ج.م");
     };
 
-    const budgetVal = formatMoney(budgetRaw);
 
     // Get file names for simulation
     const filesInput = document.getElementById('new-deal-files');
@@ -2262,7 +2259,6 @@ window.broadcastDealNotification = function (category, title, description, overE
         type: "مناقصة (شراء / توريد)",
         createdAt: new Date().toISOString(),
         endDate: endDate,
-        budget: budgetVal,
         insuranceAmount: insurance,
         attachments: fileNames,
         status: "نشط",
@@ -3067,9 +3063,9 @@ window.downloadCompanyTemplate = function () {
         "جاري التحميل..."
     ], () => {
         const data = [
-            ["اسم الشركة", "مجال التخصص", "الدولة", "اسم المفوض", "رقم الهاتف"],
-            ["شركة المثال الحديثة", "المقاولات العامة", "مصر", "أحمد محمد", "01234567890"],
-            ["مؤسسة التقنية الذكية", "البرمجيات والأمن السيبراني", "السعودية", "سارة علي", "01098765432"]
+            ["اسم الشركة", "مجال التخصص", "الدولة", "البريد الإلكتروني", "اسم المفوض", "رقم الهاتف"],
+            ["شركة المثال الحديثة", "المقاولات العامة", "مصر", "info@example.com", "أحمد محمد", "01234567890"],
+            ["مؤسسة التقنية الذكية", "البرمجيات والأمن السيبراني", "السعودية", "tech@smart.sa", "سارة علي", "01098765432"]
         ];
 
         const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -3111,13 +3107,14 @@ window.importCompaniesFromExcel = function (event) {
                         name: row["اسم الشركة"] || row["Company Name"] || row["name"],
                         field: row["مجال التخصص"] || row["Expertise"] || row["field"],
                         country: row["الدولة"] || row["Country"] || row["country"] || "غير محدد",
+                        email: row["البريد الإلكتروني"] || row["Email"] || row["email"] || "",
                         representativeName: row["اسم المفوض"] || row["Representative"] || row["representativeName"],
                         representativePhone: row["رقم الهاتف"] || row["Phone"] || row["representativePhone"],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
 
                     if (companyData.name) {
-                        await db.collection("companies").add(companyData);
+                        await window.db.collection("companies").add(companyData);
                         successCount++;
                     }
                 }
@@ -3132,4 +3129,40 @@ window.importCompaniesFromExcel = function (event) {
         };
         reader.readAsArrayBuffer(file);
     });
+};
+
+// Mock Template Downloader
+window.downloadMockTemplate = function (filename, content) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+};
+
+// File Upload Preview Handler
+window.handleFileUploadPreview = function (input, listId = 'file-preview-list', textId = 'file-upload-text') {
+    const list = document.getElementById(listId);
+    const text = document.getElementById(textId);
+    if (!list || !input.files) return;
+
+    list.innerHTML = '';
+    if (input.files.length > 0) {
+        if (text) text.innerText = `تم اختيار ${input.files.length} ملفات`;
+        Array.from(input.files).forEach(file => {
+            const size = (file.size / (1024 * 1024)).toFixed(2);
+            list.innerHTML += `
+                <div style="padding: 0.5rem; background: rgba(212, 175, 55, 0.1); border-radius: 6px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-primary);"><i class="fa-solid fa-file-pdf"></i> ${file.name}</span>
+                    <span style="color: var(--text-muted);">${size} MB</span>
+                </div>
+            `;
+        });
+    } else {
+        if (text) text.innerText = 'اضغط هنا لاختيار الملفات أو اسحبها';
+    }
 };
