@@ -575,7 +575,7 @@ h6 {
 }
 
 .login-header p {
-    color: #94A3B8;
+    color: var(--text-secondary);
     font-size: 0.95rem;
     margin-bottom: 3rem;
     line-height: 1.6;
@@ -636,19 +636,19 @@ h6 {
     font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 0.2rem;
-    color: #F8FAFC;
+    color: var(--text-primary);
 }
 
 .role-info p {
     font-size: 0.825rem;
-    color: #64748B;
+    color: var(--text-secondary);
 }
 
 .register-prompt {
     margin-top: 3.5rem;
     font-size: 0.9rem;
-    color: #64748B;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-glass);
     padding-top: 2rem;
 }
 
