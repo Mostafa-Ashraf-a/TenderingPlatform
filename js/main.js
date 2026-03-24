@@ -113,7 +113,7 @@ window.renderLoginView = function () {
     loginScreen.innerHTML = `
         <div class="login-card glass-panel" style="animation: fadeIn 0.8s ease-out;">
             <div class="login-header">
-                <i class="fa-solid fa-microchip"></i>
+                <i class="fa-solid fa-microchip" style="color: var(--primary-color); font-size: 3rem; margin-bottom: 1rem;"></i>
                 <h2 class="text-gradient">منصة الصفقات والمناقصات الذكية</h2>
                 <p>بوابتك المدعومة بالذكاء الاصطناعي لتجارة آمنة وموثقة</p>
             </div>
@@ -211,43 +211,43 @@ window.showRegisterView = function () {
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">اسم الشركة / المؤسسة</label>
                         <input type="text" id="reg-company-name" required placeholder="مثلاً: شركة النصر للمقاولات" 
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">رقم السجل التجاري</label>
                         <input type="number" id="reg-cr-number" required placeholder="12345678"
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">الرقم الضريبي (TIN)</label>
                         <input type="text" id="reg-tax-number" required placeholder="000-000-000"
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">اسم المفوض المسئول</label>
                         <input type="text" id="reg-rep-name" required placeholder="الاسم الرباعي للمفوض"
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">رقم الجوال (WhatsApp)</label>
                         <input type="tel" id="reg-rep-phone" required placeholder="+966XXXXXXXXX"
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">البريد الإلكتروني الرسمي</label>
                         <input type="email" id="reg-email" required placeholder="info@company.com"
-                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; transition: border-color 0.3s;"
+                               style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; transition: border-color 0.3s;"
                                onfocus="this.style.borderColor='var(--primary-light)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                         <label style="display: block; margin-bottom: 0.5rem; color: #94A3B8; font-size: 0.85rem;">مجال التخصص / النشاط الرئيسي</label>
                         <select id="reg-company-field" required 
-                                style="width: 100%; padding: 0.75rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; font-family: var(--font-body);">
+                                style="width: 100%; padding: 0.75rem; border-radius: 12px; background: #F9FAFB; border: 1px solid var(--border-glass); color: var(--text-primary); outline: none; font-family: var(--font-body);">
                              <option value="" disabled selected>اختر مجال التخصص الرئيسي لشركتك...</option>
                              ${mockDB.categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}
                         </select>
@@ -255,7 +255,7 @@ window.showRegisterView = function () {
                 </div>
 
                 <!-- Document Upload Area -->
-                <div style="margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.15);">
+                <div style="margin-bottom: 2rem; background: rgba(212, 175, 55, 0.02); padding: 1.5rem; border-radius: 16px; border: 1px dashed var(--border-glass);">
                     <h4 style="margin-bottom: 1.25rem; color: var(--accent-color); font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-file-shield"></i> الأوراق الرسمية المرفقة للتوثيق الآلي
                     </h4>
@@ -279,7 +279,7 @@ window.showRegisterView = function () {
                         <i class="fa-solid fa-shield-check"></i> تسجيل وإرسال للفحص الذكي
                     </button>
                     <button type="button" class="btn" onclick="window.renderLoginView()" 
-                            style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94A3B8; border-radius: 14px;">
+                            style="flex: 1; background: #F3F4F6; border: 1px solid var(--border-glass); color: var(--text-muted); border-radius: 14px;">
                         تراجع
                     </button>
                 </div>
@@ -328,21 +328,21 @@ window.handleRegisterSubmit = function (event) {
             if (!loginScreen) return;
 
             loginScreen.innerHTML = `
-                <div class="login-card glass-panel" style="animation: fadeIn 0.8s ease-out; border-color: rgba(16, 185, 129, 0.3); text-align: center;">
+                <div class="login-card glass-panel" style="animation: fadeIn 0.8s ease-out; border-color: var(--primary-color); text-align: center;">
                     <div class="login-header">
-                        <i class="fa-solid fa-circle-check" style="color: var(--success); filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.5)); font-size: 4rem;"></i>
+                        <i class="fa-solid fa-circle-check" style="color: var(--primary-color); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); font-size: 4rem;"></i>
                         <h2 class="text-gradient" style="margin-top: 1.5rem;">تم التسجيل بنجاح!</h2>
                         <p style="margin-top: 0.5rem;">عزيزي ${repName}، تم حفظ بيانات شركة "${companyName}" وتوثيقها مبدئياً.</p>
                     </div>
                     
-                    <div style="background: rgba(16, 185, 129, 0.05); padding: 1.5rem; border-radius: 20px; margin-bottom: 2.5rem; border: 1px solid rgba(16, 185, 129, 0.1); text-align: right;">
+                    <div style="background: rgba(212, 175, 55, 0.05); padding: 1.5rem; border-radius: 20px; margin-bottom: 2.5rem; border: 1px solid var(--border-glass); text-align: right; color: var(--text-primary);">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="color: #64748B; font-size: 0.85rem;">حالة التدقيق الآلي:</span>
-                            <span style="color: var(--success); font-weight: 700; font-size: 0.85rem;">مكتمل وموثق ✅</span>
+                            <span style="color: var(--primary-color); font-weight: 700; font-size: 0.85rem;">مكتمل وموثق ✅</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="color: #64748B; font-size: 0.85rem;">الإشعارات البريدية:</span>
-                            <span style="color: var(--success); font-weight: 700; font-size: 0.85rem;">مفعلة (${email})</span>
+                            <span style="color: var(--primary-color); font-weight: 700; font-size: 0.85rem;">مفعلة (${email})</span>
                         </div>
                         <p style="font-size: 0.8rem; color: #94A3B8; margin-top: 1rem; line-height: 1.4;">
                             <i class="fa-solid fa-circle-info"></i> ستصلك الآن تنبيهات الصفقات الجديدة في مجال "${field}" عبر البريد والواتساب فور نشرها.
@@ -841,8 +841,9 @@ window.startCountdown = function (endDateStr, elementId) {
         const s = Math.floor((diff % (1000 * 60)) / 1000);
 
         // Dynamic Color Logic
-        let timerColor = "#d4250aff"; // Success Green
-        let shadowColor = "rgba(226, 15, 15, 0.4)";
+        // Default: Gold for active competition
+        let timerColor = "#D4AF37"; 
+        let shadowColor = "rgba(212, 175, 55, 0.4)";
         if (d < 1) { timerColor = "#EF4444"; shadowColor = "rgba(239, 68, 68, 0.4)"; }
         else if (d < 3) { timerColor = "#F59E0B"; shadowColor = "rgba(245, 158, 11, 0.4)"; }
 
